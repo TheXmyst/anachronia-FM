@@ -610,7 +610,7 @@
             color: var(--text-muted);
         }
 
-        /* --- Sidebar Card (New Component) --- */
+        /* --- Sidebar Card (News & Socials) --- */
         .sidebar-wrapper {
             width: 100%;
             max-width: 440px;
@@ -657,69 +657,42 @@
             fill: var(--accent-purple);
         }
 
-        .program-list {
+        /* Announcement News Container styling */
+        .news-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            flex: 1;
-        }
-
-        .program-item {
-            display: flex;
-            gap: 14px;
             background: rgba(255, 255, 255, 0.02);
-            padding: 12px 16px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.03);
-            transition: var(--transition-smooth);
-        }
-
-        .program-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            transform: translateX(4px);
-        }
-
-        .program-item.active {
-            border-color: rgba(59, 130, 246, 0.25);
-            background: rgba(59, 130, 246, 0.04);
-        }
-
-        .program-time {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            color: var(--accent-blue);
-            font-weight: 600;
-            white-space: nowrap;
-            min-width: 90px;
-            padding-top: 1px;
-        }
-
-        .program-item.active .program-time {
-            color: var(--accent-green);
-            font-weight: 700;
-            animation: pulseText 2s infinite alternate;
-        }
-
-        @keyframes pulseText {
-            0% { opacity: 0.8; }
-            100% { opacity: 1; text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
-        }
-
-        .program-details {
             flex: 1;
         }
 
-        .program-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 2px;
+        .news-badge {
+            align-self: flex-start;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 8px;
+            letter-spacing: 0.05em;
         }
 
-        .program-desc {
-            font-size: 0.75rem;
+        .news-headline {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .news-text {
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            line-height: 1.3;
+            line-height: 1.55;
+            text-align: justify;
         }
 
         .sidebar-divider {
@@ -838,7 +811,7 @@
 
             .player-wrapper {
                 flex: 1.1;
-                max-width: 720px; /* limits width when placed side-by-side */
+                max-width: 720px;
             }
 
             .player-card {
@@ -958,7 +931,7 @@
         </div>
         <nav class="nav-links">
             <a href="#" class="active">Direct</a>
-            <a href="#programmes">Programmes</a>
+            <a href="#annonces">Annonces</a>
             <a href="#socials">Réseaux</a>
         </nav>
         <div class="header-socials">
@@ -1084,47 +1057,33 @@
             </div>
         </div>
 
-        <!-- Right Item: Sidebar Card (Programs & Socials) -->
-        <div class="sidebar-wrapper" id="programmes">
+        <!-- Right Item: Sidebar Card (News & Socials) -->
+        <div class="sidebar-wrapper" id="annonces">
             <div class="sidebar-card">
                 
-                <!-- Day Program list -->
+                <!-- News Section -->
                 <div class="sidebar-title">
                     <svg viewBox="0 0 24 24">
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                     </svg>
-                    <span>Grille des Programmes</span>
+                    <span>Lancement Officiel</span>
                 </div>
                 
-                <div class="program-list">
-                    <div class="program-item active">
-                        <div class="program-time">En Direct</div>
-                        <div class="program-details">
-                            <div class="program-name">Anachronia Clubbing</div>
-                            <div class="program-desc">DJ Anubis ft. Invités • Mix Electro & Live Beats</div>
-                        </div>
-                    </div>
-                    <div class="program-item">
-                        <div class="program-time">00:00 - 08:00</div>
-                        <div class="program-details">
-                            <div class="program-name">Nuit Anachronique</div>
-                            <div class="program-desc">Le meilleur de l'électro et ambient non-stop</div>
-                        </div>
-                    </div>
-                    <div class="program-item">
-                        <div class="program-time">08:00 - 12:00</div>
-                        <div class="program-details">
-                            <div class="program-name">Le Réveil Matin</div>
-                            <div class="program-desc">Pop-rock et actus matinales indépendantes</div>
-                        </div>
-                    </div>
-                    <div class="program-item">
-                        <div class="program-time">12:00 - 18:00</div>
-                        <div class="program-details">
-                            <div class="program-name">Vibrations Lounge</div>
-                            <div class="program-desc">Prog house, synthwave et mélodies relaxantes</div>
-                        </div>
-                    </div>
+                <div class="news-container">
+                    <div class="news-badge">Actualité</div>
+                    <h3 class="news-headline">Bienvenue sur Anachronia FM !</h3>
+                    <p class="news-text">
+                        Nous venons tout juste de lancer la diffusion en direct de notre webradio !
+                    </p>
+                    <p class="news-text">
+                        Notre catalogue musical est encore en cours d'étoffement. Pour le moment, le nombre de pistes est limité, mais nous travaillons activement à l'enrichir de jour en jour.
+                    </p>
+                    <p class="news-text">
+                        De nombreux morceaux, playlists thématiques et nouveautés feront leur apparition très prochainement.
+                    </p>
+                    <p class="news-text">
+                        Merci infiniment pour votre patience, votre écoute et votre soutien dans cette nouvelle aventure musicale !
+                    </p>
                 </div>
 
                 <div class="sidebar-divider"></div>
@@ -1436,12 +1395,6 @@
                     fetchHistory();
                 }, 2000);
             }
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         // --- System Media Session API ---
