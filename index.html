@@ -3,19 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Web Radio</title>
+    <title>Ma Web Radio en Direct</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: #fff; padding: 50px; }
-        .player { margin-top: 30px; background: #222; padding: 20px; border-radius: 10px; display: inline-block; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            background: #09090b; 
+            color: #fafafa; 
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0; 
+        }
+        .player-card { 
+            background: #141416; 
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            border: 1px solid #27272a;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 { font-size: 1.8rem; margin: 0 0 8px 0; color: #ffffff; font-weight: 700; }
+        .subtitle { font-size: 0.95rem; color: #a1a1aa; margin-bottom: 30px; }
+        
+        /* Animation de l'onde radio quand la musique joue */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+        .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+        .playing .dot { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1.1); opacity: 0.5; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* Bouton Play / Pause personnalisé */
+        .play-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+        .play-btn:hover { transform: scale(1.05); background: #f4f4f5; }
+        .play-btn:active { transform: scale(0.95); }
+        
+        /* Icônes SVG internes au bouton */
+        .play-btn svg { width: 32px; height: 32px; fill: #09090b; transition: all 0.1s; }
+        .icon-pause { display: none; }
+        .playing .icon-play { display: none; }
+        .playing .icon-pause { display: block; }
+
+        /* Contrôle du Volume discret */
+        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
+        .volume-slider { 
+            -webkit-appearance: none; width: 100px; height: 4px; background: #3f3f46; border-radius: 2px; outline: none; 
+        }
+        .volume-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 12px; height: 12px; background: #ffffff; border-radius: 50%; cursor: pointer; 
+        }
     </style>
 </head>
 <body>
-    <h1>Bienvenue sur ma Web Radio</h1>
-    <p>Écoutez notre flux en direct :</p>
-    
-    <div class="player">
-        <!-- Remplacez l'URL ci-dessous par le lien de votre flux audio (Icecast/Shoutcast) -->
-        <audio controls src="https://play.radioking.io/anachronia-fm"></audio>
+
+    <div class="player-card" id="playerContainer">
+        <div class="live-indicator">
+            <span class="dot"></span> Direct
+        </div>
+        
+        <h1>Bienvenue sur ma Web Radio</h1>
+        <div class="subtitle">Écoutez notre flux en direct</div>
+        
+        <!-- Lecteur invisible utilisé en arrière-plan -->
+        <audio id="radioAudio" src="https://play.radioking.io/anachronia-fm"></audio>
+        
+        <!-- Bouton personnalisé -->
+        <button class="play-btn" id="playButton" aria-label="Lire la radio">
+            <!-- Icône Play -->
+            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <!-- Icône Pause -->
+            <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <!-- Curseur de Volume -->
+        <div class="volume-container">
+            <svg style="width:18px;height:18px;fill:#a1a1aa" viewBox="0 0 24 24"><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2 16.77l-5-5H3V9h4l5-5v16z"/></svg>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
+        </div>
     </div>
+
+    <script>
+        const audio = document.getElementById('radioAudio');
+        const playButton = document.getElementById('playButton');
+        const container = document.getElementById('playerContainer');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        // Gestion du bouton Lecture / Pause
+        playButton.addEventListener('click', () => {
+            if (audio.paused) {
+                // Pour une radio en direct, on recharge le flux au clic pour éviter les décalages de mémoire tampon
+                audio.load();
+                audio.play();
+                container.classList.add('playing');
+            } else {
+                audio.pause();
+                container.classList.add('playing');
+                container.classList.remove('playing');
+            }
+        });
+
+        // Gestion du curseur de volume
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+    </script>
 </body>
 </html>
