@@ -73,6 +73,7 @@
             width: 100%;
             max-width: 440px;
             perspective: 1000px;
+            transition: var(--transition-smooth);
         }
 
         .player-card {
@@ -88,12 +89,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 0;
         }
 
         .player-card:hover {
             box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Columns layout for Mobile stack / Desktop split */
+        .player-left-col, .player-right-col {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Live Indicator */
@@ -534,6 +544,88 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* --- Desktop Responsive Styling --- */
+        @media (min-width: 800px) {
+            .player-wrapper {
+                max-width: 860px;
+            }
+
+            .player-card {
+                flex-direction: row;
+                align-items: stretch;
+                padding: 40px 36px;
+                gap: 48px;
+            }
+
+            /* Left column styling: artwork + live badge */
+            .player-left-col {
+                width: 320px;
+                flex-shrink: 0;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .cover-art-container {
+                width: 320px;
+                height: 320px;
+                margin-bottom: 0;
+                border-radius: 28px;
+            }
+
+            .live-badge {
+                align-self: flex-start;
+                margin-bottom: 24px;
+            }
+
+            /* Right column styling: info + slider + buttons + history */
+            .player-right-col {
+                flex: 1;
+                align-items: stretch;
+                justify-content: center;
+                min-width: 0;
+            }
+
+            .song-details {
+                text-align: left;
+                margin-bottom: 20px;
+            }
+
+            .track-title {
+                font-size: 1.7rem;
+                padding: 0;
+            }
+
+            .artist-name {
+                font-size: 1.05rem;
+            }
+
+            .progress-wrapper {
+                margin-bottom: 24px;
+            }
+
+            .controls-row {
+                justify-content: flex-start;
+                gap: 20px;
+                max-width: none;
+                margin-bottom: 20px;
+            }
+
+            .volume-wrapper {
+                justify-content: flex-start;
+                max-width: none;
+                margin-bottom: 24px;
+                align-self: flex-start;
+                width: auto;
+                padding: 8px 18px 8px 12px;
+            }
+
+            .history-section {
+                margin-top: 12px;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                padding-top: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -547,91 +639,97 @@
     <div class="player-wrapper">
         <div class="player-card" id="playerContainer">
             
-            <!-- Live Indicator Badge -->
-            <div class="live-badge">
-                <span class="live-dot"></span>
-                <span>Direct</span>
-                <span class="wave-visualizer">
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                    <span class="wave-bar"></span>
-                </span>
-            </div>
-            
-            <!-- Cover Art Display -->
-            <div class="cover-art-container">
-                <img id="coverArtImg" class="cover-image" src="" alt="Pochette Radio">
-                <div id="defaultCover" class="default-cover-fallback active">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                    </svg>
+            <!-- Left Column: Badge & Artwork -->
+            <div class="player-left-col">
+                <!-- Live Indicator Badge -->
+                <div class="live-badge">
+                    <span class="live-dot"></span>
+                    <span>Direct</span>
+                    <span class="wave-visualizer">
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                    </span>
+                </div>
+                
+                <!-- Cover Art Display -->
+                <div class="cover-art-container">
+                    <img id="coverArtImg" class="cover-image" src="" alt="Pochette Radio">
+                    <div id="defaultCover" class="default-cover-fallback active">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
             
-            <!-- Song Info Details -->
-            <div class="song-details">
-                <div class="track-title" id="trackTitle">Chargement...</div>
-                <div class="artist-name" id="artistName">Anachronia FM</div>
-                <div class="album-name" id="albumName">-</div>
-            </div>
-
-            <!-- Dynamic Progress Bar -->
-            <div class="progress-wrapper" id="progressWrapper">
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" id="progressBarFill"></div>
+            <!-- Right Column: Metadata & Controls & History -->
+            <div class="player-right-col">
+                <!-- Song Info Details -->
+                <div class="song-details">
+                    <div class="track-title" id="trackTitle">Chargement...</div>
+                    <div class="artist-name" id="artistName">Anachronia FM</div>
+                    <div class="album-name" id="albumName">-</div>
                 </div>
-                <div class="time-labels">
-                    <span id="timeElapsed">00:00</span>
-                    <span id="timeTotal">00:00</span>
+
+                <!-- Dynamic Progress Bar -->
+                <div class="progress-wrapper" id="progressWrapper">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                    </div>
+                    <div class="time-labels">
+                        <span id="timeElapsed">00:00</span>
+                        <span id="timeTotal">00:00</span>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Controls Layout -->
-            <div class="controls-row">
-                <!-- Share Button -->
-                <button class="utility-btn" id="shareBtn" aria-label="Partager ce morceau">
-                    <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
-                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 5.92c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
-                    </svg>
-                </button>
+                
+                <!-- Controls Layout -->
+                <div class="controls-row">
+                    <!-- Share Button -->
+                    <button class="utility-btn" id="shareBtn" aria-label="Partager ce morceau">
+                        <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 5.92c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
+                        </svg>
+                    </button>
 
-                <!-- Center Play/Pause -->
-                <button class="play-btn" id="playButton" aria-label="Lire la radio">
-                    <!-- Icon Play -->
-                    <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    <!-- Icon Pause -->
-                    <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                </button>
+                    <!-- Center Play/Pause -->
+                    <button class="play-btn" id="playButton" aria-label="Lire la radio">
+                        <!-- Icon Play -->
+                        <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <!-- Icon Pause -->
+                        <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
 
-                <!-- Buy Track Button -->
-                <button class="utility-btn" id="buyBtn" aria-label="Acheter ce morceau" style="display:none;">
-                    <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
-                        <path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.88 1.46h13.08c.88 0 1.65-.62 1.88-1.46l2.54-9.27.04-.27c0-.55-.45-1-1-1h-4.79zM9 9l3-4.5L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Volume Control Container -->
-            <div class="volume-wrapper">
-                <svg class="volume-icon" id="volumeIcon" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                </svg>
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
-            </div>
-
-            <!-- Recently Played Section -->
-            <div class="history-section">
-                <div class="history-header">
-                    <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24">
-                        <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-                    </svg>
-                    <span>Récemment diffusés</span>
+                    <!-- Buy Track Button -->
+                    <button class="utility-btn" id="buyBtn" aria-label="Acheter ce morceau" style="display:none;">
+                        <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
+                            <path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.88 1.46h13.08c.88 0 1.65-.62 1.88-1.46l2.54-9.27.04-.27c0-.55-.45-1-1-1h-4.79zM9 9l3-4.5L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                        </svg>
+                    </button>
                 </div>
-                <div class="history-list" id="historyList">
-                    <!-- History entries will be injected here -->
-                    <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:10px 0;">Chargement de l'historique...</div>
+
+                <!-- Volume Control Container -->
+                <div class="volume-wrapper">
+                    <svg class="volume-icon" id="volumeIcon" viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
+                </div>
+
+                <!-- Recently Played Section -->
+                <div class="history-section">
+                    <div class="history-header">
+                        <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24">
+                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                        </svg>
+                        <span>Récemment diffusés</span>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <!-- History entries will be injected here -->
+                        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:10px 0;">Chargement de l'historique...</div>
+                    </div>
                 </div>
             </div>
 
