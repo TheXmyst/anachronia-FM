@@ -3,60 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Web Radio en Direct</title>
+    <title>Anachronia FM | En Direct</title>
+    <!-- Polices Premium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            text-align: center; 
-            background: #09090b; 
-            color: #fafafa; 
-            display: flex;
-            align-content: center;
-            justify-content: center;
-            align-items: center;
+        :root {
+            --bg-dark: #09090b;
+            --card-bg: rgba(20, 20, 22, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #22c55e;
+            --accent-green-alpha: rgba(34, 197, 94, 0.15);
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             min-height: 100vh;
-            margin: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
         }
-        .player-card { 
-            background: #141416; 
-            padding: 40px 30px; 
-            border-radius: 24px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            border: 1px solid #27272a;
+
+        /* Ambient Aura Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.2);
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            filter: blur(100px) saturate(1.8);
+            opacity: 0.3;
+            transition: var(--transition-smooth);
+        }
+
+        /* Player Container */
+        .player-wrapper {
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
+            perspective: 1000px;
         }
-        h1 { font-size: 1.8rem; margin: 0 0 8px 0; color: #ffffff; font-weight: 700; }
-        .subtitle { font-size: 0.95rem; color: #a1a1aa; margin-bottom: 30px; }
-        
-        /* Animation de l'onde radio quand la musique joue */
-        .live-indicator {
+
+        .player-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 36px 28px 28px 28px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-card:hover {
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Live Indicator */
+        .live-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            margin-bottom: 25px;
+            gap: 8px;
+            background: var(--accent-green-alpha);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--accent-green);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 28px;
             text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
         }
-        .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
-        .playing .dot { animation: pulse 1.5s infinite; }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+        }
+
+        .playing .live-dot {
+            animation: pulse 1.8s infinite;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            70% { transform: scale(1.1); opacity: 0.5; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            70% { transform: scale(1.2); opacity: 0.4; box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
             100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
-        /* Bouton Play / Pause personnalisé */
+        /* Cover Container */
+        .cover-art-container {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin-bottom: 28px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #1f1f23, #141416);
+            transition: var(--transition-smooth);
+        }
+
+        .cover-art-container:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Default Cover Gradient & Icon if Image fails */
+        .default-cover-fallback {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .default-cover-fallback.active {
+            opacity: 1;
+        }
+
+        .default-cover-fallback svg {
+            width: 64px;
+            height: 64px;
+            fill: #ffffff;
+            opacity: 0.85;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Song Metadata Info */
+        .song-details {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .track-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 10px;
+        }
+
+        .artist-name {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .album-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            width: 100%;
+            margin-bottom: 24px;
+            display: none; /* dynamically displayed when metadata available */
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 4px;
+            transition: width 0.3s linear;
+        }
+
+        .time-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Audio Wave Visualizer */
+        .wave-visualizer {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 14px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .wave-bar {
+            width: 2px;
+            height: 4px;
+            background-color: var(--accent-green);
+            border-radius: 1px;
+            transition: var(--transition-smooth);
+        }
+
+        .playing .wave-bar {
+            animation: bounce 0.8s ease-in-out infinite alternate;
+        }
+
+        .playing .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+        .playing .wave-bar:nth-child(2) { animation-delay: 0.3s; }
+        .playing .wave-bar:nth-child(3) { animation-delay: 0.5s; }
+        .playing .wave-bar:nth-child(4) { animation-delay: 0.2s; }
+        .playing .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0% { transform: scaleY(1); }
+            100% { transform: scaleY(3.5); }
+        }
+
+        /* Controls Area */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 24px;
+        }
+
+        .utility-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            transition: var(--transition-smooth);
+        }
+
+        .utility-btn:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .utility-btn:active {
+            transform: translateY(0);
+        }
+
         .play-btn {
-            width: 80px;
-            height: 80px;
+            width: 76px;
+            height: 76px;
             border-radius: 50%;
             background: #ffffff;
             border: none;
@@ -64,81 +336,667 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px auto;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15),
+                        0 0 0 0px rgba(255, 255, 255, 0.1);
+            transition: var(--transition-smooth);
+            position: relative;
         }
-        .play-btn:hover { transform: scale(1.05); background: #f4f4f5; }
-        .play-btn:active { transform: scale(0.95); }
-        
-        /* Icônes SVG internes au bouton */
-        .play-btn svg { width: 32px; height: 32px; fill: #09090b; transition: all 0.1s; }
-        .icon-pause { display: none; }
-        .playing .icon-play { display: none; }
-        .playing .icon-pause { display: block; }
 
-        /* Contrôle du Volume discret */
-        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
-        .volume-slider { 
-            -webkit-appearance: none; width: 100px; height: 4px; background: #3f3f46; border-radius: 2px; outline: none; 
+        .play-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.25),
+                        0 0 0 6px rgba(255, 255, 255, 0.08);
         }
-        .volume-slider::-webkit-slider-thumb { 
-            -webkit-appearance: none; width: 12px; height: 12px; background: #ffffff; border-radius: 50%; cursor: pointer; 
+
+        .play-btn:active {
+            transform: scale(0.96);
+        }
+
+        .play-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #09090b;
+            transition: transform 0.2s;
+        }
+
+        .icon-pause {
+            display: none;
+        }
+
+        .playing .icon-play {
+            display: none;
+        }
+
+        .playing .icon-pause {
+            display: block;
+        }
+
+        /* Volume Control */
+        .volume-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 8px 18px;
+            border-radius: 20px;
+            max-width: 280px;
+        }
+
+        .volume-icon {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .volume-icon:hover {
+            fill: var(--text-primary);
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 120px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 2px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: var(--transition-smooth);
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            background: var(--text-primary);
+        }
+
+        /* Track History Section */
+        .history-section {
+            width: 100%;
+            margin-top: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 24px;
+        }
+
+        .history-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: var(--transition-smooth);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .history-cover {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-artist {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .history-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            background: rgba(20, 20, 22, 0.9);
+            border: 1px solid var(--accent-purple);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="player-card" id="playerContainer">
-        <div class="live-indicator">
-            <span class="dot"></span> Direct
-        </div>
-        
-        <h1>Bienvenue sur ma Web Radio</h1>
-        <div class="subtitle">Écoutez notre flux en direct</div>
-        
-        <!-- Lecteur invisible utilisé en arrière-plan -->
-        <audio id="radioAudio" src="https://play.radioking.io/anachronia-fm"></audio>
-        
-        <!-- Bouton personnalisé -->
-        <button class="play-btn" id="playButton" aria-label="Lire la radio">
-            <!-- Icône Play -->
-            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            <!-- Icône Pause -->
-            <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-        </button>
+    <!-- Ambient Aura -->
+    <div class="ambient-bg">
+        <img id="ambientGlowImg" class="ambient-glow" src="" alt="">
+    </div>
 
-        <!-- Curseur de Volume -->
-        <div class="volume-container">
-            <svg style="width:18px;height:18px;fill:#a1a1aa" viewBox="0 0 24 24"><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2 16.77l-5-5H3V9h4l5-5v16z"/></svg>
-            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
+    <!-- Main Player Card -->
+    <div class="player-wrapper">
+        <div class="player-card" id="playerContainer">
+            
+            <!-- Live Indicator Badge -->
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                <span>Direct</span>
+                <span class="wave-visualizer">
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                </span>
+            </div>
+            
+            <!-- Cover Art Display -->
+            <div class="cover-art-container">
+                <img id="coverArtImg" class="cover-image" src="" alt="Pochette Radio">
+                <div id="defaultCover" class="default-cover-fallback active">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Song Info Details -->
+            <div class="song-details">
+                <div class="track-title" id="trackTitle">Chargement...</div>
+                <div class="artist-name" id="artistName">Anachronia FM</div>
+                <div class="album-name" id="albumName">-</div>
+            </div>
+
+            <!-- Dynamic Progress Bar -->
+            <div class="progress-wrapper" id="progressWrapper">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <div class="time-labels">
+                    <span id="timeElapsed">00:00</span>
+                    <span id="timeTotal">00:00</span>
+                </div>
+            </div>
+            
+            <!-- Controls Layout -->
+            <div class="controls-row">
+                <!-- Share Button -->
+                <button class="utility-btn" id="shareBtn" aria-label="Partager ce morceau">
+                    <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
+                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 5.92c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
+                    </svg>
+                </button>
+
+                <!-- Center Play/Pause -->
+                <button class="play-btn" id="playButton" aria-label="Lire la radio">
+                    <!-- Icon Play -->
+                    <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <!-- Icon Pause -->
+                    <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+
+                <!-- Buy Track Button -->
+                <button class="utility-btn" id="buyBtn" aria-label="Acheter ce morceau" style="display:none;">
+                    <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
+                        <path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.88 1.46h13.08c.88 0 1.65-.62 1.88-1.46l2.54-9.27.04-.27c0-.55-.45-1-1-1h-4.79zM9 9l3-4.5L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Volume Control Container -->
+            <div class="volume-wrapper">
+                <svg class="volume-icon" id="volumeIcon" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
+            </div>
+
+            <!-- Recently Played Section -->
+            <div class="history-section">
+                <div class="history-header">
+                    <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24">
+                        <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                    </svg>
+                    <span>Récemment diffusés</span>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History entries will be injected here -->
+                    <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:10px 0;">Chargement de l'historique...</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
+    <!-- Hidden Audio Player -->
+    <audio id="radioAudio" src="https://play.radioking.io/anachronia-fm"></audio>
+
+    <!-- Toast Notification Overlay -->
+    <div class="toast" id="toast">Lien copié dans le presse-papier !</div>
+
+    <!-- Application Script -->
     <script>
+        // DOM Elements
         const audio = document.getElementById('radioAudio');
         const playButton = document.getElementById('playButton');
         const container = document.getElementById('playerContainer');
         const volumeSlider = document.getElementById('volumeSlider');
+        const volumeIcon = document.getElementById('volumeIcon');
+        
+        const trackTitle = document.getElementById('trackTitle');
+        const artistName = document.getElementById('artistName');
+        const albumName = document.getElementById('albumName');
+        const coverArtImg = document.getElementById('coverArtImg');
+        const ambientGlowImg = document.getElementById('ambientGlowImg');
+        const defaultCover = document.getElementById('defaultCover');
+        
+        const progressWrapper = document.getElementById('progressWrapper');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const timeElapsed = document.getElementById('timeElapsed');
+        const timeTotal = document.getElementById('timeTotal');
+        
+        const shareBtn = document.getElementById('shareBtn');
+        const buyBtn = document.getElementById('buyBtn');
+        const historyList = document.getElementById('historyList');
+        const toast = document.getElementById('toast');
 
-        // Gestion du bouton Lecture / Pause
-        playButton.addEventListener('click', () => {
+        // State variables
+        let trackStartUtc = null;
+        let trackDuration = 0;
+        let progressInterval = null;
+        let currentBuyUrl = null;
+        let isMuted = false;
+        let previousVolume = 0.8;
+
+        // Configuration
+        const STATION_NAME = 'anachronia-fm';
+        const API_CURRENT = `https://api.radioking.io/widget/radio/${STATION_NAME}/track/current`;
+        const API_HISTORY = `https://api.radioking.io/widget/radio/${STATION_NAME}/track/history`;
+
+        // Load Volume Preference
+        const storedVolume = localStorage.getItem('radioVolume');
+        if (storedVolume !== null) {
+            const vol = parseFloat(storedVolume);
+            audio.volume = vol;
+            volumeSlider.value = vol;
+            previousVolume = vol;
+            updateVolumeIcon(vol);
+        }
+
+        // --- Core Player Controls ---
+        
+        function togglePlay() {
             if (audio.paused) {
-                // Pour une radio en direct, on recharge le flux au clic pour éviter les décalages de mémoire tampon
+                // Live Stream cache-busting
                 audio.load();
-                audio.play();
-                container.classList.add('playing');
+                audio.play()
+                    .then(() => {
+                        container.classList.add('playing');
+                    })
+                    .catch(err => {
+                        console.error("Playback failed: ", err);
+                    });
             } else {
                 audio.pause();
-                container.classList.add('playing');
                 container.classList.remove('playing');
+            }
+        }
+
+        playButton.addEventListener('click', togglePlay);
+
+        // Volume slider handler
+        volumeSlider.addEventListener('input', (e) => {
+            const vol = parseFloat(e.target.value);
+            audio.volume = vol;
+            localStorage.setItem('radioVolume', vol);
+            isMuted = vol === 0;
+            updateVolumeIcon(vol);
+        });
+
+        // Mute / Unmute when clicking the speaker icon
+        volumeIcon.addEventListener('click', () => {
+            if (isMuted) {
+                audio.volume = previousVolume;
+                volumeSlider.value = previousVolume;
+                isMuted = false;
+                updateVolumeIcon(previousVolume);
+            } else {
+                previousVolume = audio.volume > 0 ? audio.volume : 0.8;
+                audio.volume = 0;
+                volumeSlider.value = 0;
+                isMuted = true;
+                updateVolumeIcon(0);
+            }
+            localStorage.setItem('radioVolume', audio.volume);
+        });
+
+        function updateVolumeIcon(vol) {
+            if (vol === 0) {
+                // Muted icon path
+                volumeIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+            } else if (vol < 0.5) {
+                // Low volume icon
+                volumeIcon.innerHTML = '<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>';
+            } else {
+                // High volume icon
+                volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            }
+        }
+
+        // --- Fetch Metadata from RadioKing API ---
+
+        async function fetchCurrentTrack() {
+            try {
+                const response = await fetch(API_CURRENT);
+                if (!response.ok) throw new Error("Erreur de récupération API");
+                const data = await response.json();
+                
+                // Update text elements
+                trackTitle.textContent = data.title || "Titre Inconnu";
+                artistName.textContent = data.artist || "Artiste Inconnu";
+                albumName.textContent = data.album || "-";
+
+                // Handle Cover Image and Ambient Backlighting
+                if (data.cover) {
+                    coverArtImg.src = data.cover;
+                    coverArtImg.style.display = 'block';
+                    defaultCover.classList.remove('active');
+                    
+                    // Smooth image change transition
+                    ambientGlowImg.src = data.cover;
+                    ambientGlowImg.style.opacity = '0.3';
+                } else {
+                    coverArtImg.style.display = 'none';
+                    defaultCover.classList.add('active');
+                    ambientGlowImg.src = ''; // reset aura
+                }
+
+                // Handle Buy Link
+                if (data.buy_link) {
+                    currentBuyUrl = data.buy_link;
+                    buyBtn.style.display = 'flex';
+                } else {
+                    currentBuyUrl = null;
+                    buyBtn.style.display = 'none';
+                }
+
+                // Handle Progress Bar calculation
+                if (data.is_live || !data.duration || !data.started_at) {
+                    // It's a live show, no specific track progress
+                    progressWrapper.style.display = 'none';
+                    trackStartUtc = null;
+                    trackDuration = 0;
+                    clearInterval(progressInterval);
+                } else {
+                    progressWrapper.style.display = 'block';
+                    // Parse API date (e.g. 2026-06-23T20:48:13+0000)
+                    // The '+0000' is understood correctly by standard JS parse
+                    trackStartUtc = new Date(data.started_at).getTime();
+                    trackDuration = data.duration;
+                    
+                    // Reset and start local progress bar computation
+                    startProgressBarTicker();
+                }
+
+                // Update OS media control widget
+                updateMediaSession(data);
+
+            } catch (err) {
+                console.error("API current track error: ", err);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch(API_HISTORY);
+                if (!response.ok) throw new Error("Erreur historique");
+                const list = await response.json();
+                
+                // Render list (exclude first element since it's the currently playing one)
+                let html = '';
+                // Limit to 3 items
+                const historyItems = list.slice(0, 3);
+
+                if (historyItems.length === 0) {
+                    html = `<div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:10px 0;">Aucun historique récent</div>`;
+                } else {
+                    historyItems.forEach(item => {
+                        // Extract starting hour
+                        let timeStr = '';
+                        if (item.started_at) {
+                            const date = new Date(item.started_at);
+                            const h = date.getHours().toString().padStart(2, '0');
+                            const m = date.getMinutes().toString().padStart(2, '0');
+                            timeStr = `${h}:${m}`;
+                        }
+                        
+                        const coverUrl = item.cover_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="%2371717a"><rect width="100%" height="100%" fill="%2327272a"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z" fill="white" opacity="0.4"/></svg>';
+
+                        html += `
+                            <div class="history-item">
+                                <img class="history-cover" src="${coverUrl}" alt="Cover" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 24 24\' fill=\'%2371717a\'><rect width=\'100%\' height=\'100%\' fill=\'%2327272a\'/></svg>'">
+                                <div class="history-details">
+                                    <div class="history-title">${escapeHtml(item.title || "Titre")}</div>
+                                    <div class="history-artist">${escapeHtml(item.artist || "Artiste")}</div>
+                                </div>
+                                <div class="history-time">${timeStr}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                historyList.innerHTML = html;
+            } catch (err) {
+                console.error("API history error: ", err);
+                historyList.innerHTML = `<div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:10px 0;">Erreur lors du chargement de l'historique</div>`;
+            }
+        }
+
+        // Utility to escape HTML and prevent injection
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // --- Real-time Progress Bar Ticker ---
+
+        function startProgressBarTicker() {
+            clearInterval(progressInterval);
+            
+            // Initial tick
+            updateProgress();
+            
+            // Tick every second
+            progressInterval = setInterval(updateProgress, 1000);
+        }
+
+        function updateProgress() {
+            if (!trackStartUtc || !trackDuration) return;
+
+            // Calculate differences
+            const now = Date.now();
+            const elapsed = Math.max(0, (now - trackStartUtc) / 1000);
+
+            // Cap at track duration
+            const pct = Math.min(100, (elapsed / trackDuration) * 100);
+            
+            progressBarFill.style.width = `${pct}%`;
+            timeElapsed.textContent = formatTime(elapsed);
+            timeTotal.textContent = formatTime(trackDuration);
+
+            // If track ended, fetch new metadata slightly earlier or exactly now
+            if (elapsed >= trackDuration) {
+                clearInterval(progressInterval);
+                // Delay 2s to let the RadioKing backend process the next song
+                setTimeout(() => {
+                    fetchCurrentTrack();
+                    fetchHistory();
+                }, 2000);
+            }
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- System Media Session API ---
+
+        function updateMediaSession(data) {
+            if ('mediaSession' in navigator) {
+                const coverUrl = data.cover || '';
+                const artworkArr = coverUrl ? [
+                    { src: coverUrl, sizes: '96x96', type: 'image/jpeg' },
+                    { src: coverUrl, sizes: '128x128', type: 'image/jpeg' },
+                    { src: coverUrl, sizes: '192x192', type: 'image/jpeg' },
+                    { src: coverUrl, sizes: '256x256', type: 'image/jpeg' },
+                    { src: coverUrl, sizes: '384x384', type: 'image/jpeg' },
+                    { src: coverUrl, sizes: '512x512', type: 'image/jpeg' },
+                ] : [];
+
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: data.title || "Direct",
+                    artist: data.artist || "Anachronia FM",
+                    album: data.album || "Web Radio",
+                    artwork: artworkArr
+                });
+
+                // Set actions
+                navigator.mediaSession.setActionHandler('play', togglePlay);
+                navigator.mediaSession.setActionHandler('pause', togglePlay);
+            }
+        }
+
+        // --- Button Handlers ---
+
+        // Buy Click
+        buyBtn.addEventListener('click', () => {
+            if (currentBuyUrl) {
+                window.open(currentBuyUrl, '_blank');
             }
         });
 
-        // Gestion du curseur de volume
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
+        // Share Click
+        shareBtn.addEventListener('click', () => {
+            const songTitle = trackTitle.textContent;
+            const artist = artistName.textContent;
+            const shareText = `J'écoute "${songTitle}" de ${artist} sur Anachronia FM ! Rejoins-moi sur le direct : ${window.location.href}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText)
+                    .then(() => showToast())
+                    .catch(err => console.error("Clipboard copy error: ", err));
+            } else {
+                // Fallback copy
+                const textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (err) {
+                    console.error("Fallback copy error: ", err);
+                }
+                document.body.removeChild(textarea);
+            }
         });
+
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- Initial Load & Polling ---
+        
+        // Initial Fetch
+        fetchCurrentTrack();
+        fetchHistory();
+
+        // Background polling loop
+        // Current song info polled every 12 seconds
+        setInterval(fetchCurrentTrack, 12000);
+        
+        // History polled every 30 seconds
+        setInterval(fetchHistory, 30000);
+
     </script>
 </body>
 </html>
