@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anachronia FM - En Direct</title>
+    <title>Ma Web Radio en Direct</title>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -12,6 +12,7 @@
             background: #09090b; 
             color: #fafafa; 
             display: flex;
+            align-content: center;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -19,78 +20,43 @@
         }
         .player-card { 
             background: #141416; 
-            padding: 30px; 
+            padding: 40px 30px; 
             border-radius: 24px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
             border: 1px solid #27272a;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
         }
+        h1 { font-size: 1.8rem; margin: 0 0 8px 0; color: #ffffff; font-weight: 700; }
+        .subtitle { font-size: 0.95rem; color: #a1a1aa; margin-bottom: 30px; }
         
-        /* Conteneur de la pochette d'album */
-        .cover-container {
-            width: 240px;
-            height: 240px;
-            margin: 0 auto 25px auto;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            background: #1e1e2f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .cover-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease, opacity 0.3s ease;
-        }
-
-        /* Effet de rotation style Vinyle si vous le souhaitez (désactivé par défaut) */
-        .playing .smooth-rotate {
-            animation: rotation 20s linear infinite;
-        }
-        @keyframes rotation {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Infos Textes */
-        h1 { font-size: 1.4rem; margin: 0 0 6px 0; color: #ffffff; font-weight: 700; }
-        .artist { font-size: 1.05rem; color: #38bdf8; font-weight: 600; margin: 0 0 6px 0; }
-        .album { font-size: 0.85rem; color: #71717a; margin: 0 0 25px 0; font-style: italic; }
-        
-        /* Badge En Direct */
+        /* Animation de l'onde radio quand la musique joue */
         .live-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            padding: 5px 12px;
+            gap: 4px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
             letter-spacing: 0.05em;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             text-transform: uppercase;
         }
-        .dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; }
-        .playing .live-indicator { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-        .playing .dot { background: #22c55e; animation: pulse 1.5s infinite; }
-        
+        .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+        .playing .dot { animation: pulse 1.5s infinite; }
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1.1); opacity: 0.5; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
-        /* Bouton de lecture */
+        /* Bouton Play / Pause personnalisé */
         .play-btn {
-            width: 74px;
-            height: 74px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: #ffffff;
             border: none;
@@ -100,111 +66,76 @@
             justify-content: center;
             margin: 0 auto 20px auto;
             transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
         }
         .play-btn:hover { transform: scale(1.05); background: #f4f4f5; }
         .play-btn:active { transform: scale(0.95); }
         
-        .play-btn svg { width: 28px; height: 28px; fill: #09090b; }
+        /* Icônes SVG internes au bouton */
+        .play-btn svg { width: 32px; height: 32px; fill: #09090b; transition: all 0.1s; }
         .icon-pause { display: none; }
         .playing .icon-play { display: none; }
         .playing .icon-pause { display: block; }
 
-        /* Contrôle de volume */
-        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .volume-slider { -webkit-appearance: none; width: 100px; height: 4px; background: #3f3f46; border-radius: 2px; outline: none; }
-        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #ffffff; border-radius: 50%; cursor: pointer; }
+        /* Contrôle du Volume discret */
+        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
+        .volume-slider { 
+            -webkit-appearance: none; width: 100px; height: 4px; background: #3f3f46; border-radius: 2px; outline: none; 
+        }
+        .volume-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 12px; height: 12px; background: #ffffff; border-radius: 50%; cursor: pointer; 
+        }
     </style>
 </head>
 <body>
 
     <div class="player-card" id="playerContainer">
         <div class="live-indicator">
-            <span class="dot"></span> Hors ligne
+            <span class="dot"></span> Direct
         </div>
         
-        <!-- Image de couverture dynamique -->
-        <div class="cover-container">
-            <img id="trackCover" class="smooth-rotate" src="https://radioking.com" alt="Pochette de l'album">
-        </div>
+        <h1>Bienvenue sur ma Web Radio</h1>
+        <div class="subtitle">Écoutez notre flux en direct</div>
         
-        <!-- Métadonnées textuelles -->
-        <h1 id="trackTitle">Anachronia FM</h1>
-        <div class="artist" id="trackArtist">Chargement des infos...</div>
-        <div class="album" id="trackAlbum"></div>
-        
-        <!-- Flux audio direct RadioKing -->
-        <audio id="radioAudio" src="https://stream.radioking.com/anachronia-fm"></audio>
+        <!-- Lecteur invisible utilisé en arrière-plan -->
+        <audio id="radioAudio" src="https://play.radioking.io/anachronia-fm"></audio>
         
         <!-- Bouton personnalisé -->
-        <button class="play-btn" id="playButton" aria-label="Écouter le direct">
+        <button class="play-btn" id="playButton" aria-label="Lire la radio">
+            <!-- Icône Play -->
             <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <!-- Icône Pause -->
             <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </button>
 
-        <!-- Curseur Volume -->
+        <!-- Curseur de Volume -->
         <div class="volume-container">
-            <svg style="width:16px;height:16px;fill:#a1a1aa" viewBox="0 0 24 24"><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2 16.77l-5-5H3V9h4l5-5v16z"/></svg>
+            <svg style="width:18px;height:18px;fill:#a1a1aa" viewBox="0 0 24 24"><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2 16.77l-5-5H3V9h4l5-5v16z"/></svg>
             <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8">
         </div>
     </div>
 
     <script>
-        const RADIO_SLUG = "anachronia-fm"; 
-
         const audio = document.getElementById('radioAudio');
         const playButton = document.getElementById('playButton');
         const container = document.getElementById('playerContainer');
         const volumeSlider = document.getElementById('volumeSlider');
-        const liveStatusText = document.querySelector('.live-indicator');
 
-        const trackTitle = document.getElementById('trackTitle');
-        const trackArtist = document.getElementById('trackArtist');
-        const trackAlbum = document.getElementById('trackAlbum');
-        const trackCover = document.getElementById('trackCover');
-
-        // Récupération automatique des métadonnées de la webradio
-        async function updateMetadata() {
-            try {
-                // Utilisation de l'API publique RadioKing avec votre slug
-                const response = await fetch(`https://radioking.com{RADIO_SLUG}/track/current`);
-                if (!response.ok) return;
-                const data = await response.json();
-
-                // Injection des données de l'API
-                trackTitle.textContent = data.title || "Titre non communiqué";
-                trackArtist.textContent = data.artist || "Artiste inconnu";
-                trackAlbum.textContent = data.album ? `Album : ${data.album}` : "";
-                
-                if (data.cover) {
-                    trackCover.src = data.cover;
-                } else {
-                    trackCover.src = "https://radioking.com";
-                }
-            } catch (error) {
-                console.error("Erreur API RadioKing :", error);
-            }
-        }
-
-        // Rafraîchissement régulier (10 secondes)
-        updateMetadata();
-        setInterval(updateMetadata, 10000);
-
-        // Actions au clic sur Play/Pause
+        // Gestion du bouton Lecture / Pause
         playButton.addEventListener('click', () => {
             if (audio.paused) {
-                audio.load(); // Recharge le flux pour rester sur le direct absolu
+                // Pour une radio en direct, on recharge le flux au clic pour éviter les décalages de mémoire tampon
+                audio.load();
                 audio.play();
                 container.classList.add('playing');
-                liveStatusText.childNodes[2].textContent = " En Direct";
             } else {
                 audio.pause();
+                container.classList.add('playing');
                 container.classList.remove('playing');
-                liveStatusText.childNodes[2].textContent = " Pause";
             }
         });
 
-        // Volume
+        // Gestion du curseur de volume
         volumeSlider.addEventListener('input', (e) => {
             audio.volume = e.target.value;
         });
